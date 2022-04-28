@@ -10,7 +10,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true, // error message for nonWhiteListes fields
       transform: true, //  Auto-transform Payloads to DTO instances
       transformOptions: {
-  //      enableImplicitConversion: true,
+        //enableImplicitConversion: true,
       },
     }),
   );
