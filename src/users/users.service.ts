@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
@@ -13,7 +17,17 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    const existingEmail = await this.userModel
+      .findOne({ email: createUserDto.email })
+      .exec();
+
+    if (existingEmail) {
+      throw new ForbiddenException(
+        `Email ${createUserDto.email} already exists`,
+      );
+    }
+
     const user = new this.userModel(createUserDto);
     return user.save();
   }
@@ -23,7 +37,7 @@ export class UsersService {
     return this.userModel.find().skip(offset).limit(limit).exec();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const user = await this.userModel.findOne({ _id: id }).exec();
 
     if (!user) {
@@ -32,7 +46,7 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.userModel
       .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
       .exec();
@@ -43,7 +57,7 @@ export class UsersService {
     return existingUser;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const user = await this.findOne(id);
     return user.remove();
   }
