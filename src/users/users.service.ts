@@ -46,6 +46,10 @@ export class UsersService {
     return user;
   }
 
+  findByEmail(email: string) {
+    return this.userModel.findOne({ email: email }).exec();
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.userModel
       .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
