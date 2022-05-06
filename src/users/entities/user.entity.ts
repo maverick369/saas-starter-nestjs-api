@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as Mongoose from 'mongoose';
+import { Exclude } from 'class-transformer';
 
 @Schema()
 export class User extends Mongoose.Document {
@@ -14,6 +15,10 @@ export class User extends Mongoose.Document {
 
   @Prop()
   surname: string;
+
+  @Exclude()
+  @Prop()
+  refresh_token?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

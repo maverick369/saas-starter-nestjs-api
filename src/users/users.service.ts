@@ -37,7 +37,7 @@ export class UsersService {
     return this.userModel.find().skip(offset).limit(limit).exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<User> {
     const user = await this.userModel.findOne({ _id: id }).exec();
 
     if (!user) {
@@ -46,13 +46,28 @@ export class UsersService {
     return user;
   }
 
-  findByEmail(email: string) {
+  findByEmail(email: string): Promise<User> {
     return this.userModel.findOne({ email: email }).exec();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.userModel
       .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
+      .exec();
+
+    if (!existingUser) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    return existingUser;
+  }
+
+  async updateRefreshToken(id: string, refreshToken: string) {
+    const existingUser = await this.userModel
+      .findOneAndUpdate(
+        { _id: id },
+        { $set: { refresh_token: refreshToken } },
+        { new: true },
+      )
       .exec();
 
     if (!existingUser) {
